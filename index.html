@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پیگیری پیشرفت دروس - تعاملی</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+            font-family: 'Vazirmatn', 'Tahoma', 'Segoe UI', sans-serif;
+            padding: 24px 30px 30px 30px;
+            color: #2c3e50;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        /* هدر */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 22px 32px;
+            border-radius: 16px;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 26px rgba(102, 126, 234, 0.35);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header .stats {
+            font-size: 17px;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.22);
+            padding: 9px 20px;
+            border-radius: 24px;
+            backdrop-filter: blur(10px);
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* شبکه کارت‌ها */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(520px, 1fr));
+            gap: 18px;
+        }
+
+        /* کارت هر درس */
+        .subject {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px 22px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+            border: 1px solid #e8eef5;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .subject:hover {
+            box-shadow: 0 8px 28px rgba(102, 126, 234, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .subject-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px dashed #e0e7f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .subject-title span {
+            font-weight: 700;
+            font-size: 14px;
+            color: #667eea;
+            background: #eef1fb;
+            padding: 4px 14px;
+            border-radius: 14px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* فصل‌ها */
+        .chapters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px 18px;
+        }
+
+        .chapter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            user-select: none;
+            padding: 6px 10px;
+            border-radius: 10px;
+            transition: background 0.15s;
+        }
+
+        .chapter-item:hover {
+            background: #f4f7fc;
+        }
+
+        .chapter-label {
+            min-width: 32px;
+            text-align: center;
+            font-size: 26px;
+            font-weight: 700;
+            color: #34495e;
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            line-height: 1;
+        }
+
+        /* سه مربع تیک */
+        .checkboxes {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .box {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: 2.5px solid #cbd5e0;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            position: relative;
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .box:hover {
+            border-color: #a0aec0;
+            transform: scale(1.1);
+        }
+
+        .box.read {
+            background: linear-gradient(135deg, #38b2ac 0%, #2c9a8f 100%);
+            border-color: #2c9a8f;
+            box-shadow: 0 4px 14px rgba(56, 178, 172, 0.45);
+        }
+
+        .box.read::after {
+            content: '✓';
+        }
+
+        .box.test {
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+            border-color: #ed8936;
+            box-shadow: 0 4px 14px rgba(246, 173, 85, 0.5);
+        }
+
+        .box.test::after {
+            content: '✓';
+        }
+
+        .box.test2 {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            border-color: #e53e3e;
+            box-shadow: 0 4px 14px rgba(245, 101, 101, 0.45);
+        }
+
+        .box.test2::after {
+            content: '✓';
+        }
+
+        /* دکمه یادداشت فصل - کوچک */
+        .note-btn {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 1.5px solid #cbd5e0;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            font-size: 14px;
+            font-weight: 700;
+            color: #a0aec0;
+            flex-shrink: 0;
+            margin-right: 4px;
+            user-select: none;
+        }
+
+        .note-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: scale(1.15);
+            background: #f4f7fc;
+        }
+
+        /* حالت یادداشت دارد */
+        .note-btn.has-note {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-color: #f6ad55;
+            color: #b45309;
+            box-shadow: 0 2px 6px rgba(246, 173, 85, 0.35);
+        }
+
+        .note-btn.has-note:hover {
+            background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+            border-color: #ed8936;
+            transform: scale(1.15);
+        }
+
+        /* راهنما */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 24px;
+            padding: 18px;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            font-size: 17px;
+            font-weight: 700;
+            color: #4a5568;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .legend-box {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .legend-box.green {
+            background: linear-gradient(135deg, #38b2ac 0%, #2c9a8f 100%);
+        }
+
+        .legend-box.orange {
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+        }
+
+        .legend-box.red {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        }
+
+        /* بخش یادداشت کلی */
+        .notes-section {
+            margin-top: 24px;
+            background: white;
+            border-radius: 16px;
+            padding: 22px 26px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.07);
+            border: 1px solid #e8eef5;
+        }
+
+        .notes-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 2px dashed #e0e7f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notes-title::before {
+            content: '📝';
+            font-size: 22px;
+        }
+
+        .notes-textarea {
+            width: 100%;
+            min-height: 180px;
+            border: 1.5px solid #d0dae6;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            font-size: 16px;
+            line-height: 2;
+            color: #2c3e50;
+            background: #fbfcfe;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .notes-textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+            background: #ffffff;
+        }
+
+        .notes-textarea::placeholder {
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        .notes-status {
+            text-align: left;
+            font-size: 12px;
+            color: #38b2ac;
+            font-weight: 600;
+            margin-top: 8px;
+            height: 16px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .notes-status.show {
+            opacity: 1;
+        }
+
+        /* مودال عمومی */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(30, 40, 60, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.15s ease;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal {
+            background: white;
+            border-radius: 18px;
+            padding: 32px 36px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.2s ease;
+            text-align: center;
+        }
+
+        .modal.chapter-note-modal {
+            max-width: 620px;
+            text-align: right;
+            padding: 26px 30px 24px 30px;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-icon {
+            font-size: 52px;
+            margin-bottom: 14px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .chapter-note-modal .modal-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 12px;
+            border-bottom: 2px dashed #e0e7f0;
+            margin-bottom: 16px;
+            text-align: right;
+        }
+
+        .chapter-note-modal .modal-title .subject-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #667eea;
+            background: #eef1fb;
+            padding: 3px 12px;
+            border-radius: 12px;
+            margin-right: auto;
+        }
+
+        .chapter-note-textarea {
+            width: 100%;
+            min-height: 220px;
+            border: 1.5px solid #d0dae6;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+            font-size: 15px;
+            line-height: 1.9;
+            color: #2c3e50;
+            background: #fbfcfe;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .chapter-note-textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+            background: #ffffff;
+        }
+
+        .chapter-note-textarea::placeholder {
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        .chapter-note-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-start;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .modal-message {
+            font-size: 15.5px;
+            color: #5a6c7d;
+            line-height: 1.8;
+            margin-bottom: 26px;
+        }
+
+        .modal-message strong {
+            color: #2c3e50;
+            font-weight: 700;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 11px 24px;
+            border-radius: 11px;
+            border: none;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+
+        .btn-confirm {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
+        }
+
+        .btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(102, 126, 234, 0.45);
+        }
+
+        .btn-cancel {
+            background: #edf2f7;
+            color: #4a5568;
+        }
+
+        .btn-cancel:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-delete {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .btn-delete:hover {
+            background: #fc8181;
+            color: white;
+        }
+
+        .reset-btn {
+            background: rgba(255, 255, 255, 0.22);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            padding: 9px 20px;
+            border-radius: 22px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+
+        .reset-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        ::-webkit-scrollbar {
+            width: 11px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f0f4f8;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+        }
+
+        @media (max-width: 750px) {
+            body {
+                padding: 12px;
+            }
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .header h1 {
+                font-size: 19px;
+            }
+            .header .stats {
+                font-size: 14px;
+            }
+            .chapter-label {
+                font-size: 20px;
+                min-width: 26px;
+            }
+            .box {
+                width: 28px;
+                height: 28px;
+                font-size: 18px;
+            }
+            .note-btn {
+                width: 20px;
+                height: 20px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📘 پیگیری پیشرفت دروس</h1>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="stats" id="stats">0 / 0</div>
+                <button class="reset-btn" onclick="resetAll()">ریست</button>
+            </div>
+        </div>
+
+        <div class="grid" id="grid"></div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box green">✓</div>
+                <span>خوانده‌ام</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box orange">✓</div>
+                <span>تست زده‌ام</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box red">✓</div>
+                <span>تست دور دوم</span>
+            </div>
+        </div>
+
+        <!-- بخش یادداشت کلی -->
+        <div class="notes-section">
+            <div class="notes-title">مباحثی که خوب یادنگرفتم</div>
+            <textarea
+                id="notesTextarea"
+                class="notes-textarea"
+                placeholder="اینجا یادداشت‌هات رو بنویس... (مثلاً: فصل ۳ آمار - توزیع پواسون، فصل ۵ گسسته - روابط بازگشتی)"
+                oninput="onNotesInput()"
+            ></textarea>
+            <div class="notes-status" id="notesStatus">✓ ذخیره شد</div>
+        </div>
+    </div>
+
+    <!-- مودال تایید تیک -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-icon" id="modalIcon">❓</div>
+            <div class="modal-title" id="modalTitle">تایید عملیات</div>
+            <div class="modal-message" id="modalMessage">آیا مطمئن هستید؟</div>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" onclick="closeModal()">انصراف</button>
+                <button class="btn btn-confirm" onclick="confirmAction()">بله، مطمئنم</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال یادداشت فصل -->
+    <div class="modal-overlay" id="chapterNoteOverlay">
+        <div class="modal chapter-note-modal">
+            <div class="modal-title">
+                <span>📝 یادداشت فصل <span id="chapterNoteChapterNum"></span></span>
+                <span class="subject-name" id="chapterNoteSubjectName"></span>
+            </div>
+            <textarea
+                id="chapterNoteTextarea"
+                class="chapter-note-textarea"
+                placeholder="یادداشتت رو درباره این فصل بنویس..."
+            ></textarea>
+            <div class="chapter-note-actions">
+                <button class="btn btn-confirm" onclick="saveChapterNote()">💾 ذخیره</button>
+                <button class="btn btn-cancel" onclick="closeChapterNote()">بستن</button>
+                <button class="btn btn-delete" id="deleteChapterNoteBtn" onclick="deleteChapterNote()" style="display: none; margin-right: auto;">🗑️ حذف یادداشت</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const subjectsData = [
+            { name: 'آمار و احتمال', range: '1 – 6', chapters: 6 },
+            { name: 'ریاضیات گسسته', range: '1 – 8', chapters: 8 },
+            { name: 'داده ساختارها', range: '1 – 7', chapters: 7 },
+            { name: 'نظریه زبان‌ها', range: '1 – 10', chapters: 10 },
+            { name: 'هوش مصنوعی', range: '1 – 14', chapters: 14 },
+            { name: 'مدار منطقی', range: '1 – 6', chapters: 6 },
+            { name: 'معماری کامپیوتر', range: '1 – 8', chapters: 8 },
+            { name: 'سیستم عامل', range: '1 – 8', chapters: 8 }
+        ];
+
+        const STORAGE_KEY = 'study_progress_v3';
+        const NOTES_KEY = 'study_notes_v1';
+        const CHAPTER_NOTES_KEY = 'study_chapter_notes_v1';
+        const TYPES = ['read', 'test', 'test2'];
+        const TYPE_LABELS = {
+            read: 'خوانده‌ام',
+            test: 'تست زده‌ام',
+            test2: 'تست دور دوم'
+        };
+
+        let state = loadState();
+        let chapterNotes = loadChapterNotes();
+        let pendingAction = null;
+        let currentChapterNoteKey = null;
+        let notesTimer = null;
+
+        function render() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+
+            subjectsData.forEach((subject, sIdx) => {
+                const card = document.createElement('div');
+                card.className = 'subject';
+
+                const title = document.createElement('div');
+                title.className = 'subject-title';
+                title.innerHTML = `${subject.name} <span>${subject.range}</span>`;
+                card.appendChild(title);
+
+                const chaptersDiv = document.createElement('div');
+                chaptersDiv.className = 'chapters';
+
+                for (let c = 1; c <= subject.chapters; c++) {
+                    const item = document.createElement('div');
+                    item.className = 'chapter-item';
+
+                    const label = document.createElement('span');
+                    label.className = 'chapter-label';
+                    label.textContent = c;
+                    item.appendChild(label);
+
+                    const boxesDiv = document.createElement('div');
+                    boxesDiv.className = 'checkboxes';
+
+                    TYPES.forEach(type => {
+                        const box = document.createElement('div');
+                        box.className = 'box';
+                        if (state[sIdx] && state[sIdx][c] && state[sIdx][c][type]) {
+                            box.classList.add(type);
+                        }
+                        box.onclick = (e) => {
+                            e.stopPropagation();
+                            requestToggle(sIdx, c, type);
+                        };
+                        boxesDiv.appendChild(box);
+                    });
+
+                    item.appendChild(boxesDiv);
+
+                    // دکمه یادداشت فصل
+                    const noteBtn = document.createElement('div');
+                    noteBtn.className = 'note-btn';
+                    const noteKey = `${sIdx}_${c}`;
+                    const hasNote = chapterNotes[noteKey] && chapterNotes[noteKey].trim() !== '';
+                    if (hasNote) {
+                        noteBtn.classList.add('has-note');
+                        noteBtn.textContent = '📝';
+                        noteBtn.title = 'مشاهده/ویرایش یادداشت';
+                    } else {
+                        noteBtn.textContent = '+';
+                        noteBtn.title = 'افزودن یادداشت';
+                    }
+                    noteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        openChapterNote(sIdx, c);
+                    };
+                    item.appendChild(noteBtn);
+
+                    chaptersDiv.appendChild(item);
+                }
+
+                card.appendChild(chaptersDiv);
+                grid.appendChild(card);
+            });
+
+            updateStats();
+        }
+
+        function requestToggle(sIdx, chapter, type) {
+            const subject = subjectsData[sIdx];
+            const typeLabel = TYPE_LABELS[type];
+            const currentlyOn = state[sIdx] && state[sIdx][chapter] && state[sIdx][chapter][type];
+            const action = currentlyOn ? 'برداشتن تیک' : 'زدن تیک';
+
+            pendingAction = { sIdx, chapter, type };
+
+            document.getElementById('modalIcon').textContent = currentlyOn ? '🤔' : '✋';
+            document.getElementById('modalTitle').textContent = currentlyOn ? 'برداشتن تیک' : 'زدن تیک';
+            document.getElementById('modalMessage').innerHTML =
+                `آیا مطمئن هستید که می‌خواهید تیک <strong>«${typeLabel}»</strong> فصل <strong>${chapter}</strong> از درس <strong>«${subject.name}»</strong> را ${action}؟`;
+
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function confirmAction() {
+            if (!pendingAction) return;
+            const { sIdx, chapter, type } = pendingAction;
+
+            if (!state[sIdx]) state[sIdx] = {};
+            if (!state[sIdx][chapter]) state[sIdx][chapter] = { read: false, test: false, test2: false };
+
+            state[sIdx][chapter][type] = !state[sIdx][chapter][type];
+
+            saveState();
+            closeModal();
+            render();
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            pendingAction = null;
+        }
+
+        /* ---------- یادداشت فصل ---------- */
+        function openChapterNote(sIdx, chapter) {
+            const subject = subjectsData[sIdx];
+            const noteKey = `${sIdx}_${chapter}`;
+            currentChapterNoteKey = noteKey;
+
+            document.getElementById('chapterNoteChapterNum').textContent = chapter;
+            document.getElementById('chapterNoteSubjectName').textContent = subject.name;
+
+            const textarea = document.getElementById('chapterNoteTextarea');
+            textarea.value = chapterNotes[noteKey] || '';
+
+            const delBtn = document.getElementById('deleteChapterNoteBtn');
+            if (chapterNotes[noteKey] && chapterNotes[noteKey].trim() !== '') {
+                delBtn.style.display = 'inline-block';
+            } else {
+                delBtn.style.display = 'none';
+            }
+
+            document.getElementById('chapterNoteOverlay').classList.add('active');
+            setTimeout(() => textarea.focus(), 100);
+        }
+
+        function closeChapterNote() {
+            document.getElementById('chapterNoteOverlay').classList.remove('active');
+            currentChapterNoteKey = null;
+        }
+
+        function saveChapterNote() {
+            if (!currentChapterNoteKey) return;
+            const textarea = document.getElementById('chapterNoteTextarea');
+            const val = textarea.value.trim();
+
+            if (val === '') {
+                delete chapterNotes[currentChapterNoteKey];
+            } else {
+                chapterNotes[currentChapterNoteKey] = textarea.value;
+            }
+
+            saveChapterNotes();
+            closeChapterNote();
+            render();
+        }
+
+        function deleteChapterNote() {
+            if (!currentChapterNoteKey) return;
+            if (!confirm('آیا مطمئن هستید که می‌خواهید این یادداشت را حذف کنید؟')) return;
+
+            delete chapterNotes[currentChapterNoteKey];
+            saveChapterNotes();
+            closeChapterNote();
+            render();
+        }
+
+        function loadChapterNotes() {
+            try {
+                const raw = localStorage.getItem(CHAPTER_NOTES_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveChapterNotes() {
+            try {
+                localStorage.setItem(CHAPTER_NOTES_KEY, JSON.stringify(chapterNotes));
+            } catch (e) {
+                console.warn('ذخیره یادداشت فصل ممکن نشد:', e);
+            }
+        }
+
+        /* ---------- بقیه ---------- */
+        function updateStats() {
+            let total = 0;
+            let done = 0;
+            subjectsData.forEach((s, sIdx) => {
+                total += s.chapters * 3;
+                for (let c = 1; c <= s.chapters; c++) {
+                    if (state[sIdx] && state[sIdx][c]) {
+                        TYPES.forEach(t => {
+                            if (state[sIdx][c][t]) done++;
+                        });
+                    }
+                }
+            });
+            document.getElementById('stats').textContent = `${done} / ${total}`;
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (e) {
+                console.warn('ذخیره‌سازی ممکن نشد:', e);
+            }
+        }
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function resetAll() {
+            if (!confirm('آیا مطمئن هستید که می‌خواهید همه تیک‌ها را پاک کنید؟ این عملیات قابل بازگشت نیست. (یادداشت‌ها پاک نمی‌شوند)')) return;
+            state = {};
+            saveState();
+            render();
+        }
+
+        /* ---------- یادداشت کلی ---------- */
+        function loadNotes() {
+            try {
+                const raw = localStorage.getItem(NOTES_KEY);
+                return raw || '';
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function saveNotes(text) {
+            try {
+                localStorage.setItem(NOTES_KEY, text);
+            } catch (e) {
+                console.warn('ذخیره یادداشت ممکن نشد:', e);
+            }
+        }
+
+        function onNotesInput() {
+            const textarea = document.getElementById('notesTextarea');
+            const status = document.getElementById('notesStatus');
+
+            saveNotes(textarea.value);
+
+            status.classList.add('show');
+            clearTimeout(notesTimer);
+            notesTimer = setTimeout(() => {
+                status.classList.remove('show');
+            }, 1200);
+        }
+
+        /* ---------- رویدادهای عمومی ---------- */
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'modalOverlay') closeModal();
+        });
+
+        document.getElementById('chapterNoteOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'chapterNoteOverlay') closeChapterNote();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                closeChapterNote();
+            }
+            // Ctrl+Enter برای ذخیره یادداشت فصل
+            if (e.ctrlKey && e.key === 'Enter') {
+                if (document.getElementById('chapterNoteOverlay').classList.contains('active')) {
+                    saveChapterNote();
+                }
+            }
+        });
+
+        render();
+
+        const textarea = document.getElementById('notesTextarea');
+        if (textarea) {
+            textarea.value = loadNotes();
+        }
+    </script>
+</body>
+</html>
